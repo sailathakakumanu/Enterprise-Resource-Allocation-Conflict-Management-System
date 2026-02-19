@@ -1,44 +1,66 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.ApiResponse;
 import com.example.backend.entity.Employee;
 import com.example.backend.service.EmployeeService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
-@RestController // Marks this class as REST API controller
-@RequestMapping("/api/employees") // Base URL for all employee APIs
+@RestController
+@RequestMapping("/api/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    // Constructor injection to connect service layer
     public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
     }
 
-    // API to create a new employee
+    // CREATE employee → 201 CREATED
     @PostMapping
-    public Employee createEmployee(@RequestBody Employee employee) {
-        return employeeService.createEmployee(employee);
+    public ResponseEntity<ApiResponse<Employee>> createEmployee(
+            @RequestBody Employee employee) {
+
+        Employee saved = employeeService.createEmployee(employee);
+
+        return ResponseEntity
+                .status(201)
+                .body(new ApiResponse<>("Employee created successfully", saved));
     }
 
-    // API to fetch all employees
+    // GET all employees → 200 OK
     @GetMapping
-    public List<Employee> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public ResponseEntity<ApiResponse<List<Employee>>> getAllEmployees() {
+
+        List<Employee> employees = employeeService.getAllEmployees();
+
+        return ResponseEntity.ok(
+                new ApiResponse<>("Employees fetched successfully", employees)
+        );
     }
 
-    // API to fetch employee by ID
+    // GET employee by id → 200 OK or 404 NOT FOUND
     @GetMapping("/{id}")
-    public Optional<Employee> getEmployeeById(@PathVariable Long id) {
-        return employeeService.getEmployeeById(id);
+    public ResponseEntity<ApiResponse<Employee>> getEmployeeById(
+            @PathVariable Long id) {
+
+        return employeeService.getEmployeeById(id)
+                .map(emp -> ResponseEntity.ok(
+                        new ApiResponse<>("Employee fetched successfully", emp)))
+                .orElse(ResponseEntity.status(404)
+                        .body(new ApiResponse<>("Employee not found", null)));
     }
 
-    // API to soft delete employee
+    // DELETE employee → 204 NO CONTENT
     @DeleteMapping("/{id}")
-    public void deleteEmployee(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteEmployee(
+            @PathVariable Long id) {
+
         employeeService.deleteEmployee(id);
+
+        return ResponseEntity.status(204)
+                .body(new ApiResponse<>("Employee deleted successfully", null));
     }
 }

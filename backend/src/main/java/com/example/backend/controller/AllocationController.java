@@ -1,52 +1,65 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.ApiResponse;
 import com.example.backend.entity.Allocation;
 import com.example.backend.service.AllocationService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@RestController // Marks this class as REST controller
-@RequestMapping("/api/allocations") // Base URL
+@RestController
+@RequestMapping("/api/allocations")
 public class AllocationController {
 
     private final AllocationService allocationService;
 
-    // Constructor injection
     public AllocationController(AllocationService allocationService) {
         this.allocationService = allocationService;
     }
 
-    // API to create allocation
+    // CREATE allocation → 201 CREATED
     @PostMapping
-    public Allocation createAllocation(
+    public ResponseEntity<ApiResponse<Allocation>> createAllocation(
 
             @RequestParam Long employeeId,
             @RequestParam Long projectId,
             @RequestParam String startDate,
             @RequestParam String endDate,
-            @RequestParam int percentage
-    ) {
+            @RequestParam int percentage) {
 
-        return allocationService.createAllocation(
-                employeeId,
-                projectId,
-                LocalDate.parse(startDate),
-                LocalDate.parse(endDate),
-                percentage
-        );
+        Allocation allocation =
+                allocationService.createAllocation(
+                        employeeId,
+                        projectId,
+                        LocalDate.parse(startDate),
+                        LocalDate.parse(endDate),
+                        percentage);
+
+        return ResponseEntity.status(201)
+                .body(new ApiResponse<>(
+                        "Allocation created successfully", allocation));
     }
 
-    // API to fetch all allocations
+    // GET allocations → 200 OK
     @GetMapping
-    public List<Allocation> getAllAllocations() {
-        return allocationService.getAllAllocations();
+    public ResponseEntity<ApiResponse<List<Allocation>>> getAllAllocations() {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>("Allocations fetched successfully",
+                        allocationService.getAllAllocations()));
     }
 
-    // API to soft delete allocation
+    // DELETE allocation → 204
     @DeleteMapping("/{id}")
-    public void deleteAllocation(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteAllocation(
+            @PathVariable Long id) {
+
         allocationService.deleteAllocation(id);
+
+        return ResponseEntity.status(204)
+                .body(new ApiResponse<>(
+                        "Allocation deleted successfully", null));
     }
 }

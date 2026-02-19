@@ -1,44 +1,64 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.ApiResponse;
 import com.example.backend.entity.Project;
 import com.example.backend.service.ProjectService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
-@RestController // Marks this class as REST API controller
-@RequestMapping("/api/projects") // Base URL for project APIs
+@RestController
+@RequestMapping("/api/projects")
 public class ProjectController {
 
     private final ProjectService projectService;
 
-    // Constructor injection to connect service layer
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }
 
-    // API to create a new project
+    // CREATE project → 201 CREATED
     @PostMapping
-    public Project createProject(@RequestBody Project project) {
-        return projectService.createProject(project);
+    public ResponseEntity<ApiResponse<Project>> createProject(
+            @RequestBody Project project) {
+
+        Project saved = projectService.createProject(project);
+
+        return ResponseEntity.status(201)
+                .body(new ApiResponse<>("Project created successfully", saved));
     }
 
-    // API to fetch all projects
+    // GET all projects → 200 OK
     @GetMapping
-    public List<Project> getAllProjects() {
-        return projectService.getAllProjects();
+    public ResponseEntity<ApiResponse<List<Project>>> getAllProjects() {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>("Projects fetched successfully",
+                        projectService.getAllProjects())
+        );
     }
 
-    // API to fetch project by ID
+    // GET project by id → 200 or 404
     @GetMapping("/{id}")
-    public Optional<Project> getProjectById(@PathVariable Long id) {
-        return projectService.getProjectById(id);
+    public ResponseEntity<ApiResponse<Project>> getProjectById(
+            @PathVariable Long id) {
+
+        return projectService.getProjectById(id)
+                .map(project -> ResponseEntity.ok(
+                        new ApiResponse<>("Project fetched successfully", project)))
+                .orElse(ResponseEntity.status(404)
+                        .body(new ApiResponse<>("Project not found", null)));
     }
 
-    // API to soft delete project
+    // DELETE project → 204
     @DeleteMapping("/{id}")
-    public void deleteProject(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteProject(
+            @PathVariable Long id) {
+
         projectService.deleteProject(id);
+
+        return ResponseEntity.status(204)
+                .body(new ApiResponse<>("Project deleted successfully", null));
     }
 }
