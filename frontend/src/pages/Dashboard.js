@@ -102,7 +102,7 @@ function Dashboard() {
 
       <h3>Upcoming Allocations: {upcomingAllocations.length}</h3>
 
-      <h3>High Allocations (>80%): {highAllocations.length}</h3>
+      <h3>High Allocations ({'>'}80%): {highAllocations.length}</h3>
 
     </div>
 
