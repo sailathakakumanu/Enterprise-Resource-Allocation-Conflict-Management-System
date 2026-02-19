@@ -2,7 +2,7 @@ import React from "react";
 import EmployeeForm from "./components/EmployeeForm";
 import ProjectForm from "./components/ProjectForm";
 import AllocationForm from "./components/AllocationForm";
-
+import AllocationList from "./components/AllocationList";
 function App() {
 
   return (
@@ -20,6 +20,11 @@ function App() {
       <hr />
 
       <AllocationForm />
+      <hr />
+
+      <AllocationList />
+
+
 
     </div>
 
