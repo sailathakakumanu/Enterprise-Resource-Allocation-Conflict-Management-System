@@ -1,6 +1,7 @@
 import React from "react";
 import EmployeeForm from "./components/EmployeeForm";
 import ProjectForm from "./components/ProjectForm";
+import AllocationForm from "./components/AllocationForm";
 
 function App() {
 
@@ -15,6 +16,10 @@ function App() {
       <hr />
 
       <ProjectForm />
+
+      <hr />
+
+      <AllocationForm />
 
     </div>
 
