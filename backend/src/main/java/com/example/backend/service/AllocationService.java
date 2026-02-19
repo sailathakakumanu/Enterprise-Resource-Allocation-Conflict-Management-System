@@ -31,12 +31,18 @@ public class AllocationService {
     }
 
     // Create allocation with conflict detection
+    // Create allocation with STRICT conflict detection (no overlaps allowed)
     public Allocation createAllocation(
             Long employeeId,
             Long projectId,
             LocalDate startDate,
             LocalDate endDate,
             int percentage) {
+
+        // Validate percentage range
+        if (percentage <= 0 || percentage > 100) {
+            throw new RuntimeException("Allocation percentage must be between 1 and 100");
+        }
 
         // Fetch employee from database
         Employee employee = employeeRepository.findById(employeeId)
@@ -47,37 +53,26 @@ public class AllocationService {
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
         // Find overlapping allocations
-        List<Allocation> overlappingAllocations =
-                allocationRepository.findOverlappingAllocations(
-                        employeeId,
-                        startDate,
-                        endDate
-                );
+        List<Allocation> overlappingAllocations = allocationRepository.findOverlappingAllocations(
+                employeeId,
+                startDate,
+                endDate);
 
-        // Calculate total allocation percentage
-        int totalPercentage = percentage;
-
-        for (Allocation allocation : overlappingAllocations) {
-            totalPercentage += allocation.getAllocationPercentage();
-        }
-
-        // Validate percentage does not exceed 100%
-        if (totalPercentage > 100) {
+        // STRICT RULE: Do not allow any overlapping allocation
+        if (!overlappingAllocations.isEmpty()) {
             throw new RuntimeException(
-                    "Allocation exceeds 100% for employee"
-            );
+                    "Employee already has an allocation during this period");
         }
 
-        // Create new allocation object
+        // Create allocation object
         Allocation allocation = new Allocation(
                 employee,
                 project,
                 startDate,
                 endDate,
-                percentage
-        );
+                percentage);
 
-        // Save allocation to database
+        // Save allocation
         return allocationRepository.save(allocation);
     }
 
@@ -89,8 +84,7 @@ public class AllocationService {
     // Soft delete allocation
     public void deleteAllocation(Long id) {
 
-        Optional<Allocation> optionalAllocation =
-                allocationRepository.findById(id);
+        Optional<Allocation> optionalAllocation = allocationRepository.findById(id);
 
         if (optionalAllocation.isPresent()) {
 
