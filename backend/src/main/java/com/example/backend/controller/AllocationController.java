@@ -1,5 +1,4 @@
 package com.example.backend.controller;
-
 import com.example.backend.dto.AllocationRequest;
 import com.example.backend.dto.ApiResponse;
 import com.example.backend.entity.Allocation;
@@ -9,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 // import java.time.LocalDate;
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/allocations")
 public class AllocationController {

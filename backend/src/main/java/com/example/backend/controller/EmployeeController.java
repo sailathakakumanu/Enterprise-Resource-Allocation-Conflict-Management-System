@@ -1,5 +1,4 @@
 package com.example.backend.controller;
-
 import com.example.backend.dto.ApiResponse;
 import com.example.backend.entity.Employee;
 import com.example.backend.service.EmployeeService;
@@ -7,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:3000") // allow React frontend
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
