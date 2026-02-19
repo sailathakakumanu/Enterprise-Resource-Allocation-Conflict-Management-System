@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.AllocationRequest;
 import com.example.backend.dto.ApiResponse;
 import com.example.backend.entity.Allocation;
 import com.example.backend.service.AllocationService;
@@ -19,27 +20,22 @@ public class AllocationController {
         this.allocationService = allocationService;
     }
 
-    // CREATE allocation → 201 CREATED
+    // CREATE allocation → 201 CREATED using request body DTO
     @PostMapping
     public ResponseEntity<ApiResponse<Allocation>> createAllocation(
+            @RequestBody AllocationRequest request) {
 
-            @RequestParam Long employeeId,
-            @RequestParam Long projectId,
-            @RequestParam String startDate,
-            @RequestParam String endDate,
-            @RequestParam int percentage) {
-
-        Allocation allocation =
-                allocationService.createAllocation(
-                        employeeId,
-                        projectId,
-                        LocalDate.parse(startDate),
-                        LocalDate.parse(endDate),
-                        percentage);
+        Allocation allocation = allocationService.createAllocation(
+                request.getEmployeeId(),
+                request.getProjectId(),
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getPercentage());
 
         return ResponseEntity.status(201)
                 .body(new ApiResponse<>(
-                        "Allocation created successfully", allocation));
+                        "Allocation created successfully",
+                        allocation));
     }
 
     // GET allocations → 200 OK
